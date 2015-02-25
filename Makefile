@@ -6,7 +6,7 @@
 #    By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2014/02/26 13:13:47 by rbenjami          #+#    #+#              #
-#    Updated: 2015/02/23 10:56:55 by rbenjami         ###   ########.fr        #
+#    Updated: 2015/02/25 17:48:33 by rbenjami         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,8 @@ FILES			=	$(NAME).c			\
 					object.c			\
 					window.c			\
 					mandelbrot.c		\
+					julia.c				\
+					julia3d.c			\
 
 SRC				=	$(addprefix $(SRC_DIR)/, $(FILES))
 

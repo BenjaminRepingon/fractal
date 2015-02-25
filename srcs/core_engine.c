@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/18 12:26:02 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/23 17:23:23 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/25 16:44:19 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ static int		expose_hook(CORE_ENGINE *c)
 
 static int		key_press(int keycode, CORE_ENGINE *c)
 {
+	printf("%d\n", keycode);
 	c->key[keycode] = TRUE;
 	return (TRUE);
 }
