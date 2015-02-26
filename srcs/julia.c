@@ -6,97 +6,81 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/24 15:25:35 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/25 17:18:33 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 14:36:49 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mandelbrot.h"
-# include <stdio.h>
-static int	update(void *o, CORE_ENGINE *c, double dt)
-{
-	MANDELBROT	*m;
-	BOOL		zoom;
-	float		delta_x;
-	float		delta_y;
+#include "utils.h"
 
+static int	update2(MANDELBROT *m, CORE_ENGINE *c, double dt)
+{
 	(void)dt;
-	(void)c;
-	zoom = FALSE;
-	delta_x = ((c->window->width / 2) - c->mouse.x) / (c->window->width) / 2;
-	delta_y = (c->mouse.y - (c->window->height / 2)) / (c->window->height / 2);
-	m = (MANDELBROT *)o;
-	if (c->button_press[5] || c->key[65362])
-	{
-		m->zoom *= 1.05f;
-		zoom = TRUE;
-	}
-	if (c->button_press[4] || c->key[65364])
-	{
-		m->zoom *= 0.95f;
-		zoom = TRUE;
-	}
+	if (c->key[109])
+		m->mode = !m->mode;
 	if (c->key[119])
 	{
-		m->min_y += 0.05;
-		m->max_y += 0.05;
+		m->min_y += (1 / m->zoom) / 5.0;
+		m->max_y += (1 / m->zoom) / 5.0;
 	}
-	// if (c->key[97])
-	// {
-	// 	m->min_x *= 0.95;
-	// 	m->max_x *= 0.95;
-	// }
+	if (c->key[97])
+	{
+		m->min_x -= (1 / m->zoom) / 5.0;
+		m->max_x -= (1 / m->zoom) / 5.0;
+	}
 	if (c->key[115])
 	{
-		m->min_y -= 0.05;
-		m->max_y -= 0.05;
+		m->min_y -= (1 / m->zoom) / 5.0;
+		m->max_y -= (1 / m->zoom) / 5.0;
 	}
-	// if (c->key[100])
-	// {
-	// 	m->min_y *= 0.95;
-	// 	m->max_y *= 0.95;
-	// }
-	if (zoom)
+	if (c->key[100])
 	{
-		m->min_x = m->min_x - (delta_x / m->zoom);
-		m->max_x = m->max_x - (delta_x / m->zoom);
-		m->min_y = m->min_y - (delta_y / m->zoom);
-		m->max_y = m->max_y - (delta_y / m->zoom);
+		m->min_x += (1 / m->zoom) / 5.0;
+		m->max_x += (1 / m->zoom) / 5.0;
 	}
 	return (TRUE);
 }
 
-static void		color(VEC3 *v, float lerp)
+static int	update(void *o, CORE_ENGINE *c, double dt)
 {
-	static int		color_a = 0xFFDD00;
-	static int		color_b = 0x00CC88;
-	VEC3			a;
-	VEC3			b;
+	MANDELBROT	*m;
+	BOOL		zoom;
+	VEC2		delta;
 
-	a.x = color_a & 0xFF0000;
-	a.y = color_a & 0x00FF00;
-	a.z = color_a & 0x0000FF;
-	b.x = color_b & 0xFF0000;
-	b.y = color_b & 0x00FF00;
-	b.z = color_b & 0x0000FF;
-	v->x = ((int)(a.x + ((b.x - a.x) * lerp)) & 0xFF0000) >> 16;
-	v->y = ((int)(a.y + ((b.y - a.y) * lerp)) & 0x00FF00) >> 8;
-	v->z = ((int)(a.z + ((b.z - a.z) * lerp)) & 0x0000FF);
+	m = (MANDELBROT *)o;
+	update2(m, c, dt);
+	zoom = FALSE;
+	delta.x = ((c->window->width / 2) - c->mouse.x) / (c->window->width / 2);
+	delta.x -= 0.1;
+	delta.y = (c->mouse.y - (c->window->height / 2)) / (c->window->height / 2);
+	if (m->mode == 0 && (c->button_press[5] || c->key[65362]) && (zoom = TRUE))
+		m->zoom *= 1.05f;
+	if (m->mode == 0 && (c->button_press[4] || c->key[65364]) && (zoom = TRUE))
+		m->zoom *= 0.9525f;
+	if (m->mode == 1)
+		m->old_pos = c->mouse;
+	if (zoom)
+	{
+		m->min_x = m->min_x - (delta.x / m->zoom);
+		m->max_x = m->max_x - (delta.x / m->zoom);
+		m->min_y = m->min_y - (delta.y / m->zoom);
+		m->max_y = m->max_y - (delta.y / m->zoom);
+	}
+	return (TRUE);
 }
 
 static int	render_julia(CORE_ENGINE *c, MANDELBROT *m)
 {
-	int			it;
+	float		it;
 	double		r;
 	double		i;
 	double		tmp;
 
+	m->rc = (double)m->old_pos.x / (double)c->window->width;
+	m->ic = (double)m->old_pos.y / (double)c->window->height;
+	m->rz = m->min_x + m->rz / c->window->width * (m->vertex.pos.x / m->zoom);
+	m->iz = m->min_y + m->iz / c->window->height * (m->vertex.pos.y / m->zoom);
 	it = 0;
-	m->rc = (double)c->mouse.x / (double)c->window->width;
-	m->ic = (double)c->mouse.y / (double)c->window->height;
-	m->rz = m->min_x + (m->max_x - m->min_x) / c->window->width * (m->vertex.pos.x / m->zoom);
-	m->iz = m->min_y + (m->max_y - m->min_y) / c->window->height * (m->vertex.pos.y / m->zoom);
-	r = 0;
-
 	while (it < 100)
 	{
 		r = m->rz;
@@ -108,7 +92,8 @@ static int	render_julia(CORE_ENGINE *c, MANDELBROT *m)
 			break ;
 		it++;
 	}
-	color(&(m->vertex.color), (float)it / 100.0f);
+	m->vertex.color = (it == 100) ? color3(0, 0, 0) : color3f(sin(it / 7.0), \
+		sin(it / 5.0), sin(it / 4.0));
 	put_vertex(c->window, &m->vertex);
 	return (TRUE);
 }
@@ -131,6 +116,8 @@ static int	render(void *o, CORE_ENGINE *c, double dt)
 			m->vertex.color.x = 0;
 			m->vertex.color.y = 0;
 			m->vertex.color.z = 0;
+			m->rz = m->max_x - m->min_x;
+			m->iz = m->max_y - m->min_y;
 			render_julia(c, m);
 			m->vertex.pos.y++;
 		}
@@ -152,5 +139,8 @@ MANDELBROT	*new_julia(float min_x, float max_x, float min_y, float max_y)
 	m->max_y = max_y;
 	m->changed = TRUE;
 	m->zoom = 1;
+	m->mode = 1;
+	m->old_pos.x = 0;
+	m->old_pos.y = 0;
 	return (m);
 }

@@ -6,61 +6,39 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/23 10:53:11 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/25 17:14:49 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 18:43:59 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mandelbrot.h"
+#include "utils.h"
 # include <stdio.h>
 static int	update(void *o, CORE_ENGINE *c, double dt)
 {
 	MANDELBROT	*m;
 	BOOL		zoom;
-	float		delta_x;
-	float		delta_y;
+	VEC2		delta;
 
 	(void)dt;
 	zoom = FALSE;
-	delta_x = ((c->window->width / 2) - c->mouse.x) / (c->window->width) / 2;
-	delta_y = (c->mouse.y - (c->window->height / 2)) / (c->window->height / 2);
+	delta.x = ((c->window->width / 2) - c->mouse.x) / (c->window->width / 2);
+	delta.x -= 0.1;
+	delta.y = (c->mouse.y - (c->window->height / 2)) / (c->window->height / 2);
 	m = (MANDELBROT *)o;
-	if (c->button_press[5] || c->key[65362])
-	{
+	if ((c->button_press[5] || c->key[65362]) && (zoom = TRUE))
 		m->zoom *= 1.05f;
-		zoom = TRUE;
-	}
-	if (c->button_press[4] || c->key[65364])
-	{
-		m->zoom *= 0.95f;
-		zoom = TRUE;
-	}
+	if ((c->button_press[4] || c->key[65364]) && (zoom = TRUE))
+		m->zoom *= 0.9525f;
 	if (zoom)
 	{
-		m->min_x = m->min_x - (delta_x / m->zoom);
-		m->max_x = m->max_x - (delta_x / m->zoom);
-		m->min_y = m->min_y - (delta_y / m->zoom);
-		m->max_y = m->max_y - (delta_y / m->zoom);
+		m->min_x = m->min_x - (delta.x / m->zoom);
+		m->max_x = m->max_x - (delta.x / m->zoom);
+		m->min_y = m->min_y - (delta.y / m->zoom);
+		m->max_y = m->max_y - (delta.y / m->zoom);
+	printf("%f\n", m->min_x);
 		m->changed = TRUE;
 	}
 	return (TRUE);
-}
-
-static void		color(VEC3 *v, float lerp)
-{
-	static int		color_a = 0xFFDD00;
-	static int		color_b = 0x00CC88;
-	VEC3			a;
-	VEC3			b;
-
-	a.x = color_a & 0xFF0000;
-	a.y = color_a & 0x00FF00;
-	a.z = color_a & 0x0000FF;
-	b.x = color_b & 0xFF0000;
-	b.y = color_b & 0x00FF00;
-	b.z = color_b & 0x0000FF;
-	v->x = ((int)(a.x + ((b.x - a.x) * lerp)) & 0xFF0000) >> 16;
-	v->y = ((int)(a.y + ((b.y - a.y) * lerp)) & 0x00FF00) >> 8;
-	v->z = ((int)(a.z + ((b.z - a.z) * lerp)) & 0x0000FF);
 }
 
 static int	render_mandelbrot(CORE_ENGINE *c, MANDELBROT *m)
@@ -70,14 +48,11 @@ static int	render_mandelbrot(CORE_ENGINE *c, MANDELBROT *m)
 	double		i;
 	double		tmp;
 
-	it = 0;
-	m->rc = m->min_x + (m->max_x - m->min_x) / c->window->width * (m->vertex.pos.x / m->zoom);
-	m->ic = m->min_y + (m->max_y - m->min_y) / c->window->height * (m->vertex.pos.y / m->zoom);
+	m->rc = m->min_x + m->rc / c->window->width * (m->vertex.pos.x / m->zoom);
+	m->ic = m->min_y + m->ic / c->window->height * (m->vertex.pos.y / m->zoom);
 	m->rz = 0;
 	m->iz = 0;
-	r = 0;
-
-	//TODO: fixed point
+	it = 0;
 	while (it < 100)
 	{
 		r = m->rz;
@@ -89,7 +64,8 @@ static int	render_mandelbrot(CORE_ENGINE *c, MANDELBROT *m)
 			break ;
 		it++;
 	}
-	color(&(m->vertex.color), (float)it / 100.0f);
+	m->vertex.color = (it == 100) ? color3(0, 0, 0) : color3f(sin(it / 7.0), \
+		sin(it / 5.0), sin(it / 4.0));
 	put_vertex(c->window, &m->vertex);
 	return (TRUE);
 }
@@ -112,6 +88,8 @@ static int	render(void *o, CORE_ENGINE *c, double dt)
 			m->vertex.color.x = 0;
 			m->vertex.color.y = 0;
 			m->vertex.color.z = 0;
+			m->rc = m->max_x - m->min_x;
+			m->ic = m->max_y - m->min_y;
 			render_mandelbrot(c, m);
 			m->vertex.pos.y++;
 		}

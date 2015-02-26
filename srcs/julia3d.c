@@ -6,136 +6,59 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/25 15:17:31 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/25 17:54:29 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 15:47:52 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "julia3d.h"
-#include <stdio.h>
 
-static int	update(void *o, CORE_ENGINE *c, double dt)
+static int	update2(JULIA3D *j, CORE_ENGINE *c, BOOL zoom, VEC2 delta)
 {
-	JULIA3D	*j;
-	BOOL		zoom;
-	float		delta_x;
-	float		delta_y;
-
-	(void)dt;
-	(void)c;
-	j = (JULIA3D *)o;
-	zoom = FALSE;
-	delta_x = ((c->window->width / 2) - c->mouse.x) / (c->window->width) / 2;
-	delta_y = (c->mouse.y - (c->window->height / 2)) / (c->window->height / 2);
-	if (c->key[109])
-	{
-		j->mode = !j->mode;
-		printf("MODE: %d\n", j->mode);
-	}
-	if (j->mode == 0 && (c->button_press[5] || c->key[65362]))
-	{
-		j->zoom *= 1.05f;
-		zoom = TRUE;
-	}
-	if (j->mode == 0 && (c->button_press[4] || c->key[65364]))
-	{
-		j->zoom *= 0.95f;
-		zoom = TRUE;
-	}
-	if (c->key[97])
-	{
-		j->changed = TRUE;
+	if (c->key[97] && (j->changed = TRUE))
 		j->rot += 0.30;
-	}
-	if (c->key[100])
-	{
-		j->changed = TRUE;
+	if (c->key[100] && (j->changed = TRUE))
 		j->rot -= 0.30;
-	}
 	if (zoom)
 	{
-		j->min_x = j->min_x - (delta_x / j->zoom);
-		j->max_x = j->max_x - (delta_x / j->zoom);
-		j->min_y = j->min_y - (delta_y / j->zoom);
-		j->max_y = j->max_y - (delta_y / j->zoom);
+		j->min_x = j->min_x - (delta.x / j->zoom);
+		j->max_x = j->max_x - (delta.x / j->zoom);
+		j->min_y = j->min_y - (delta.y / j->zoom);
+		j->max_y = j->max_y - (delta.y / j->zoom);
 		j->changed = TRUE;
 	}
-	if (j->mode == 1 && (j->old_pos.x != c->mouse.x || j->old_pos.y != c->mouse.y))
+	if (j->mode == 1 && \
+		(j->old_pos.x != c->mouse.x || j->old_pos.y != c->mouse.y))
 	{
+		j->old_pos = c->mouse;
 		j->changed = TRUE;
-		j->old_pos.x = c->mouse.x;
-		j->old_pos.y = c->mouse.y;
 	}
 	return (TRUE);
 }
 
-static VEC3	color3(int r, int g, int b)
+static int	update(void *o, CORE_ENGINE *c, double dt)
 {
-	VEC3	c;
+	JULIA3D		*j;
+	BOOL		zoom;
+	VEC2		delta;
 
-	c.x = r;
-	c.y = g;
-	c.z = b;
-	return (c);
-}
-
-static int	render_julia3d(CORE_ENGINE *core, JULIA3D *j)
-{
-	int		c;
-	int		cc;
-	float	z;
-	float	zc;
-	float	r;
-	float	x;
-	float	y;
-	QUAT	qz;
-	QUAT	qc;
-	float	tr;
-
-	x = j->min_x + (j->max_x - j->min_x) / core->window->width * (j->vertex.pos.x / j->zoom);
-	y = j->min_y + (j->max_y - j->min_y) / core->window->height * (j->vertex.pos.y / j->zoom);
-	qc.x = j->old_pos.x / core->window->width;
-	qc.y = j->old_pos.y / core->window->height;
-	qc.z = -0.6113;
-	qc.w = -0.05;
-	cc = 0;
-	z = 1.6;
-	while (z >= -1.6)
+	(void)dt;
+	j = (JULIA3D *)o;
+	zoom = FALSE;
+	delta.x = ((c->window->width / 2) - c->mouse.x) / (c->window->width / 2);
+	delta.x -= 0.1;
+	delta.y = (c->mouse.y - (c->window->height / 2)) / (c->window->height / 2);
+	if (c->key[109])
 	{
-		qz.x = x * cos(j->rot) + z * sin(j->rot);
-		qz.y = -x * sin(j->rot) + z * cos(j->rot);
-		qz.z = y;
-		qz.w = 0;
-		c = 0;
-		r = qz.x + qz.x + qz.y * qz.y + qz.z * qz.z + qz.w * qz.w;
-		while (r < 16 && c < j->c_max)
-		{
-			tr = qz.x;
-			qz.x = qz.x * qz.x - qz.y * qz.y - qz.z * qz.z - qz.w * qz.w - qc.x;
-			qz.y = 2 * tr * qz.y - qc.y;
-			qz.z = 2 * tr * qz.z - qc.y;
-			qz.w = 2 * tr * qz.w - qc.w;
-			c++;
-			r = qz.x + qz.x + qz.y * qz.y + qz.z * qz.z + qz.w * qz.w;
-		}
-		if (c > cc)
-		{
-			cc = c;
-			zc = z;
-		}
-		z -= 0.04;
+		j->mode = !j->mode;
+		ft_putstr("Mode: ");
+		ft_putnbr_base(j->mode, 2);
+		ft_putchar('\n');
 	}
-	if (cc == j->c_max)
-	{
-		if (zc < 0)
-			j->vertex.color = color3((zc + 1) * 200, 0, 0);
-		else if (zc <= 1)
-			j->vertex.color = color3(200 + (zc) * 50, zc * 200, 0);
-		else
-			j->vertex.color = color3(255, 255, (zc - 1) * 400);
-	}
-	else
-		j->vertex.color = color3(0, 0, 0);
-	put_vertex(core->window, &j->vertex);
+	if (j->mode == 0 && (c->button_press[5] || c->key[65362]) && (zoom = TRUE))
+		j->zoom *= 1.05f;
+	if (j->mode == 0 && (c->button_press[4] || c->key[65364]) && (zoom = TRUE))
+		j->zoom *= 0.95f;
+	update2(j, c, zoom, delta);
 	return (TRUE);
 }
 
@@ -166,7 +89,7 @@ static int	render(void *o, CORE_ENGINE *c, double dt)
 	return (TRUE);
 }
 
-JULIA3D	*new_julia3d(float min_x, float max_x, float min_y, float max_y)
+JULIA3D		*new_julia3d(float min_x, float max_x, float min_y, float max_y)
 {
 	JULIA3D	*j;
 

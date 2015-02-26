@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/18 12:26:14 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/23 15:34:58 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 15:35:46 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,30 @@
 # define CORE_ENGINE_H
 # include <sys/time.h>
 # include "window.h"
-
-# define CORE_ENGINE	t_core_engine
-
-typedef struct		s_core_engine
-{
-	WINDOW			*window;
-	t_list			*objects;
-	int				fps;
-	double			start_frame;
-	double			end_frame;
-	double			dt;
-	BOOL			key[70000];
-	BOOL			button_press[8];
-	BOOL			button_release[8];
-	VEC2			mouse;
-}					t_core_engine;
-
+# include "core_engine_struct.h"
 # include "object.h"
-struct		s_object;
 
+struct s_object;
+
+/*
+**	core_engine.c
+*/
 CORE_ENGINE			*new_core_engine(int fps);
 void				create_window(CORE_ENGINE *c, int w, int h, char *title);
 void				add_object(CORE_ENGINE *c, struct s_object *o);
+
+/*
+**	core_engine_loop.c
+*/
+int					loop_hook(CORE_ENGINE *c);
+
+/*
+**	core_engine_hooks.c
+*/
+int					key_press(int keycode, CORE_ENGINE *c);
+int					key_release(int keycode, CORE_ENGINE *c);
+int					motion_notify(int x, int y, CORE_ENGINE *c);
+int					button_press(int button, int x, int y, CORE_ENGINE *c);
+int					button_release(int button, int x, int y, CORE_ENGINE *c);
 
 #endif

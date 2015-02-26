@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/18 13:11:02 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/19 14:28:18 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 15:36:40 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,16 @@
 # include "core_engine.h"
 
 # define OBJECT			t_object
-# define UPDATE_FUNC	(*update)(void *o, CORE_ENGINE *c, double dt)
-# define RENDER_FUNC	(*render)(void *o, CORE_ENGINE *c, double dt)
 
 typedef struct		s_object
 {
 	void			*o_ptr;
-	int				UPDATE_FUNC;
-	int				RENDER_FUNC;
+	int				(*update)(void *o, CORE_ENGINE *c, double dt);
+	int				(*render)(void *o, CORE_ENGINE *c, double dt);
 }					t_object;
 
-OBJECT				*new_object(void *o, int UPDATE_FUNC, int RENDER_FUNC);
+OBJECT				*new_object(void *o_ptr, \
+	int (*update)(void *o, CORE_ENGINE *c, double dt), \
+	int (*render)(void *o, CORE_ENGINE *c, double dt));
 
 #endif

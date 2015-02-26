@@ -6,7 +6,7 @@
 #    By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2014/02/26 13:13:47 by rbenjami          #+#    #+#              #
-#    Updated: 2015/02/25 17:48:33 by rbenjami         ###   ########.fr        #
+#    Updated: 2015/02/26 15:57:37 by rbenjami         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,12 +28,17 @@ SRC_DIR			=	srcs/
 
 FILES			=	$(NAME).c			\
 					core_engine.c		\
+					core_engine_loop.c	\
+					core_engine_hooks.c	\
 					image.c				\
+					utils.c				\
 					object.c			\
 					window.c			\
 					mandelbrot.c		\
 					julia.c				\
+					burning_ship.c		\
 					julia3d.c			\
+					julia3d_render.c	\
 
 SRC				=	$(addprefix $(SRC_DIR)/, $(FILES))
 

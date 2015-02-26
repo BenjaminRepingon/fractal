@@ -6,13 +6,15 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/18 13:10:54 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/19 14:32:38 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 15:30:13 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "object.h"
 
-OBJECT				*new_object(void *o_ptr, int UPDATE_FUNC, int RENDER_FUNC)
+OBJECT				*new_object(void *o_ptr, \
+	int (*update)(void *o, CORE_ENGINE *c, double dt), \
+	int (*render)(void *o, CORE_ENGINE *c, double dt))
 {
 	OBJECT	*o;
 

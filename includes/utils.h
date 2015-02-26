@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fractol.h                                          :+:      :+:    :+:   */
+/*   utils.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/02/23 10:31:37 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/26 14:44:33 by rbenjami         ###   ########.fr       */
+/*   Created: 2015/02/26 12:36:41 by rbenjami          #+#    #+#             */
+/*   Updated: 2015/02/26 12:38:00 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FRACTOL_H
-# define FRACTOL_H
+#ifndef UTILS_H
+# define UTILS_H
 
 # include <libft.h>
-# include "core_engine.h"
-# include "mandelbrot.h"
-# include "julia3d.h"
+
+VEC3	color3f(float r, float g, float b);
+VEC3	color3(int r, int g, int b);
 
 #endif

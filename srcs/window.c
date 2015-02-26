@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/17 13:41:26 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/23 17:05:18 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/26 15:30:48 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ void			swap_buffer(WINDOW *w)
 void			clear_window(WINDOW *w)
 {
 	(void)w;
-	// mlx_clear_window(w->mlx, w->win);
 }
 
 void			put_vertex(WINDOW *w, VERT *v)
