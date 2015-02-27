@@ -6,15 +6,14 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/26 11:32:36 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/27 13:22:39 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/27 17:48:11 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "core_engine.h"
-# include <stdio.h>
+
 int		key_press(int keycode, CORE_ENGINE *c)
 {
-	printf("%d\n", keycode);
 	c->key[keycode] = TRUE;
 	return (TRUE);
 }

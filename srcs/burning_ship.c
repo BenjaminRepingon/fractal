@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/26 15:54:37 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/27 17:13:50 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/27 17:50:16 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ static int	update(void *o, CORE_ENGINE *c, double dt)
 	MANDELBROT	*m;
 	BOOL		zoom;
 	VEC2		delta;
-	int			i;
 
 	(void)dt;
 	zoom = FALSE;
@@ -38,12 +37,7 @@ static int	update(void *o, CORE_ENGINE *c, double dt)
 		m->max_y = m->max_y - (delta.y / m->zoom);
 		m->changed = TRUE;
 	}
-	i = -1;
-	while (++i < 9)
-	{
-		if (c->key[65457 + i] && (m->changed = TRUE))
-			m->anti_alias = i + 1;
-	}
+	check_num(c, m);
 	return (TRUE);
 }
 

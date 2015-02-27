@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/23 10:53:23 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/27 13:21:06 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/27 17:47:57 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,5 @@ typedef struct	s_mandelbrot
 MANDELBROT		*new_mandelbrot(float minx, float maxx, float miny, float maxy);
 MANDELBROT		*new_julia(float min_x, float max_x, float min_y, float max_y);
 MANDELBROT		*new_burning_ship(float inx, float axx, float iny, float axy);
-MANDELBROT		*new_dragon(float min_x, float max_x, float min_y, float max_y);
 
 #endif
