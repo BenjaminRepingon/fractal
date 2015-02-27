@@ -6,7 +6,7 @@
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/02/26 15:54:37 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/26 18:17:02 by rbenjami         ###   ########.fr       */
+/*   Updated: 2015/02/27 17:13:50 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ static int	update(void *o, CORE_ENGINE *c, double dt)
 	MANDELBROT	*m;
 	BOOL		zoom;
 	VEC2		delta;
+	int			i;
 
 	(void)dt;
 	zoom = FALSE;
@@ -37,76 +38,69 @@ static int	update(void *o, CORE_ENGINE *c, double dt)
 		m->max_y = m->max_y - (delta.y / m->zoom);
 		m->changed = TRUE;
 	}
+	i = -1;
+	while (++i < 9)
+	{
+		if (c->key[65457 + i] && (m->changed = TRUE))
+			m->anti_alias = i + 1;
+	}
 	return (TRUE);
 }
 
-static void	color(VEC3 *v, float lerp)
+static int	render_burningship2(CORE_ENGINE *c, MANDELBROT *m, float x, float y)
 {
-	static int		color_a = 0x000000;
-	static int		color_b = 0xFF0000;
-	VEC3			a;
-	VEC3			b;
-
-	a.x = color_a & 0xFF0000;
-	a.y = color_a & 0x00FF00;
-	a.z = color_a & 0x0000FF;
-	b.x = color_b & 0xFF0000;
-	b.y = color_b & 0x00FF00;
-	b.z = color_b & 0x0000FF;
-	v->x = ((int)(a.x + ((b.x - a.x) * lerp)) & 0xFF0000) >> 16;
-	v->y = ((int)(a.y + ((b.y - a.y) * lerp)) & 0x00FF00) >> 8;
-	v->z = ((int)(a.z + ((b.z - a.z) * lerp)) & 0x0000FF);
-}
-#define MAX_ANTI_ALIAS 5
-#define MAX_IT 100
-// #  include <stdio.h>
-static int	render_burning_ship(CORE_ENGINE *c, MANDELBROT *m)
-{
-	int			it[MAX_ANTI_ALIAS * MAX_ANTI_ALIAS];
-	float		anti_alias;
 	double		r;
 	double		i;
+	int			it;
+
+	m->rc = m->min_x + (m->max_x - m->min_x) / c->window->width * \
+	((m->vertex.pos.x + x) / m->zoom);
+	m->ic = m->min_y + (m->max_y - m->min_y) / c->window->height * \
+	((m->vertex.pos.y + y) / m->zoom);
+	m->rz = m->rc;
+	m->iz = m->ic;
+	r = m->rz * m->rz;
+	i = m->iz * m->iz;
+	it = 0;
+	while (it < 100)
+	{
+		m->iz = fabs(m->rz * m->iz);
+		m->iz = m->iz + m->iz - m->ic;
+		m->rz = r - i + m->rc;
+		r = m->rz * m->rz;
+		i = m->iz * m->iz;
+		if (r + i >= 4)
+			break ;
+		it++;
+	}
+	return (it);
+}
+
+static int	render_burning_ship(CORE_ENGINE *c, MANDELBROT *m)
+{
 	int			alias_x;
 	int			alias_y;
-	int			total;
+	float		total;
 
 	alias_y = 0;
 	total = 0;
-	while (alias_y < MAX_ANTI_ALIAS)
+	while (alias_y < m->anti_alias)
 	{
 		alias_x = 0;
-		while (alias_x < MAX_ANTI_ALIAS)
+		while (alias_x < m->anti_alias)
 		{
-			anti_alias = (float)(-(MAX_ANTI_ALIAS / 2) + alias_x) / (float)MAX_ANTI_ALIAS;
-			m->rc = m->min_x + (m->max_x - m->min_x) / c->window->width * ((m->vertex.pos.x + anti_alias) / m->zoom);
-			anti_alias = (float)(-(MAX_ANTI_ALIAS / 2) + alias_y) / (float)MAX_ANTI_ALIAS;
-			m->ic = m->min_y + (m->max_y - m->min_y) / c->window->height * ((m->vertex.pos.y + anti_alias) / m->zoom);
-			m->rz = m->rc;
-			m->iz = m->ic;
-			r = m->rz * m->rz;
-			i = m->iz * m->iz;
-			it[alias_y * MAX_ANTI_ALIAS + alias_x] = 0;
-			while (it[alias_y * MAX_ANTI_ALIAS + alias_x] < MAX_IT)
-			{
-				m->iz = fabs(m->rz * m->iz);
-				m->iz = m->iz + m->iz - m->ic;
-				m->rz = r - i + m->rc;
-				r = m->rz * m->rz;
-				i = m->iz * m->iz;
-				if (r + i >= 4)
-					break ;
-				it[alias_y * MAX_ANTI_ALIAS + alias_x]++;
-			}
-			total += it[alias_y * MAX_ANTI_ALIAS + alias_x];
+			total += render_burningship2(c, m, \
+				(float)(-(m->anti_alias / 2) + alias_x) / (float)m->anti_alias,\
+				(float)(-(m->anti_alias / 2) + alias_y) / (float)m->anti_alias);
 			alias_x++;
 		}
 		alias_y++;
 	}
-	total /= MAX_ANTI_ALIAS * MAX_ANTI_ALIAS;
-	if (total == MAX_IT)
+	total /= m->anti_alias * m->anti_alias;
+	if (total == 100)
 		m->vertex.color = color3(230, 200, 50);
 	else
-		color(&m->vertex.color, (float)total / MAX_IT);
+		m->vertex.color = color3f(sin(total / 50), 0, 0);
 	put_vertex(c->window, &m->vertex);
 	return (TRUE);
 }
@@ -129,8 +123,6 @@ static int	render(void *o, CORE_ENGINE *c, double dt)
 			m->vertex.color.x = 0;
 			m->vertex.color.y = 0;
 			m->vertex.color.z = 0;
-			// m->rc = ;
-			// m->ic = ;
 			render_burning_ship(c, m);
 			m->vertex.pos.y++;
 		}
@@ -153,5 +145,6 @@ MANDELBROT	*new_burning_ship(float minx, float maxx, float miny, float maxy)
 	m->max_y = maxy;
 	m->changed = TRUE;
 	m->zoom = 1;
+	m->anti_alias = 1;
 	return (m);
 }

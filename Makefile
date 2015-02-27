@@ -6,7 +6,7 @@
 #    By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2014/02/26 13:13:47 by rbenjami          #+#    #+#              #
-#    Updated: 2015/02/26 15:57:37 by rbenjami         ###   ########.fr        #
+#    Updated: 2015/02/27 10:38:29 by rbenjami         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,7 @@ FILES			=	$(NAME).c			\
 					mandelbrot.c		\
 					julia.c				\
 					burning_ship.c		\
+					dragon.c			\
 					julia3d.c			\
 					julia3d_render.c	\
 

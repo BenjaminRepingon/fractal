@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mandelbrot.c                                       :+:      :+:    :+:   */
+/*   dragon.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rbenjami <rbenjami@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/02/23 10:53:11 by rbenjami          #+#    #+#             */
-/*   Updated: 2015/02/27 16:51:27 by rbenjami         ###   ########.fr       */
+/*   Created: 2015/02/27 10:35:55 by rbenjami          #+#    #+#             */
+/*   Updated: 2015/02/27 14:06:18 by rbenjami         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ static int	update(void *o, CORE_ENGINE *c, double dt)
 	return (TRUE);
 }
 
-static int	render_mandelbrot(CORE_ENGINE *c, MANDELBROT *m)
+static int	render_dragon(CORE_ENGINE *c, MANDELBROT *m)
 {
-	float		it;
+	int			it;
 	double		r;
 	double		i;
 	double		tmp;
@@ -63,8 +63,8 @@ static int	render_mandelbrot(CORE_ENGINE *c, MANDELBROT *m)
 			break ;
 		it++;
 	}
-	m->vertex.color = (it == 100) ? color3(0, 50, 50) : \
-									color3f(0, sin(it / 50), sin(it / 50));
+	m->vertex.color = (it == 100) ? color3(0, 0, 0) : color3f(sin(it / 7.0), \
+		sin(it / 5.0), sin(it / 4.0));
 	put_vertex(c->window, &m->vertex);
 	return (TRUE);
 }
@@ -89,7 +89,7 @@ static int	render(void *o, CORE_ENGINE *c, double dt)
 			m->vertex.color.z = 0;
 			m->rc = m->max_x - m->min_x;
 			m->ic = m->max_y - m->min_y;
-			render_mandelbrot(c, m);
+			render_dragon(c, m);
 			m->vertex.pos.y++;
 		}
 		m->vertex.pos.x++;
@@ -98,7 +98,7 @@ static int	render(void *o, CORE_ENGINE *c, double dt)
 	return (TRUE);
 }
 
-MANDELBROT	*new_mandelbrot(float min_x, float max_x, float min_y, float max_y)
+MANDELBROT	*new_dragon(float min_x, float max_x, float min_y, float max_y)
 {
 	MANDELBROT	*m;
 
